@@ -1,0 +1,37 @@
+version: '3'
+services:
+  mongo:
+    container_name: MongoContainer
+    volumes:
+      - 'mongo-data:/data/db'
+    image: 'mongo:latest'
+    ports:
+      - 27017:27017
+  redis:
+    container_name: RedisContainer1
+    image: 'redis:latest'
+    command: redis-server --appendonly yes
+    volumes:
+      - 'redis-data:/data'
+    ports:
+      - 6379:6379
+  server:
+    build: .
+    ports:
+      - "3000"
+    depends_on:
+      - mongo
+      - redis
+  nginx:
+    container_name: NginxContainer
+    image: nginx:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+
+volumes:
+  mongo-data:
+  redis-data:
